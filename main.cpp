@@ -73,7 +73,22 @@ public:
         }
     };
     void Delete(T data){
-
+        if (_head->Data == data){
+            Node<T>* tmp = _head;
+            delete [] _head;
+            _head = tmp->Next;
+        }else{
+        ListIterator<T> tmp = this->begin();
+        for (auto it = *this->begin(); it != *this->end(); it++){
+            if (*it == data){
+                ListIterator<T> t = it;
+                delete [] it;
+                tmp->Next = t->Next;
+                return;
+            }
+            ListIterator<T>* tmp = it;
+        }
+        return;}
     };
     bool Contains(T data){
         return false;
@@ -82,7 +97,7 @@ public:
     ListIterator<T> end(){return ListIterator<T>(_tail->Next);};
     ConstListIterator<T> cbegin(){return ConstListIterator<T>(_head);};
     ConstListIterator<T> cend(){return ConstListIterator<T>(_tail->Next);};
-    ~MyForwardList();
+    ~MyForwardList(){};
 };
 
 struct Iterator
@@ -141,7 +156,10 @@ int main(){
     mlf.Add(5);
     mlf.Add(777);
     mlf.Add(1000);
-    for (auto it : mlf) cout << it << endl;
+    mlf.Delete(777);
+    for (auto it = mlf.cbegin(); it != mlf.cend(); it++){
+            cout << *it << endl;
+        }
     return 0;
 }
 
