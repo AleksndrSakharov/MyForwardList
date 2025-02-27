@@ -72,25 +72,31 @@ public:
             _tail = _tail->Next;
         }
     };
-    void Delete(T data){
-        if (_head->Data == data){
-            Node<T>* tmp = _head;
-            delete [] _head;
-            _head = tmp->Next;
-        }else{
-        ListIterator<T> tmp = this->begin();
-        for (auto it = *this->begin(); it != *this->end(); it++){
-            if (*it == data){
-                ListIterator<T> t = it;
-                delete [] it;
-                tmp->Next = t->Next;
-                return;
-            }
-            ListIterator<T>* tmp = it;
+    void Delete(T data) {
+    if (!_head) return; 
+
+    if (_head->Data == data) {
+        Node<T>* tmp = _head;
+        _head = _head->Next;
+        delete tmp;
+        if (!_head) _tail = nullptr;
+        return;
+    }
+    Node<T>* prev = _head;
+    for (Node<T>* curr = _head->Next; curr != nullptr; curr = curr->Next) {
+        if (curr->Data == data) {
+            prev->Next = curr->Next;
+            if (curr == _tail) _tail = prev;
+            delete curr;
+            return;
         }
-        return;}
-    };
+        prev = curr;
+    }
+};
     bool Contains(T data){
+        for (auto it : this){
+            if (it == data) return true;
+        }
         return false;
     };
     ListIterator<T> begin(){return ListIterator<T>(_head);};
@@ -156,7 +162,7 @@ int main(){
     mlf.Add(5);
     mlf.Add(777);
     mlf.Add(1000);
-    mlf.Delete(777);
+    mlf.Delete(5);
     for (auto it = mlf.cbegin(); it != mlf.cend(); it++){
             cout << *it << endl;
         }
