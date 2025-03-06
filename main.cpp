@@ -75,7 +75,8 @@ public:
     void Delete(T data) {
     if (!_head) return; 
 
-    if (_head->Data == data) {
+    ListIterator<T> it = begin();
+    if (*it == data) {
         Node<T>* tmp = _head;
         _head = _head->Next;
         delete tmp;
@@ -83,19 +84,24 @@ public:
         return;
     }
     Node<T>* prev = _head;
-    for (Node<T>* curr = _head->Next; curr != nullptr; curr = curr->Next) {
-        if (curr->Data == data) {
+    Node<T>* curr = _head->Next;
+    it++;
+    for (it; it != end(); it++) {
+        if (*it == data) {
             prev->Next = curr->Next;
             if (curr == _tail) _tail = prev;
             delete curr;
             return;
         }
         prev = curr;
+        curr = curr->Next;
     }
 };
     bool Contains(T data){
-        for (auto it : this){
-            if (it == data) return true;
+        ListIterator<T> it = begin();
+        while (it != end()){
+            if (*it == data) return true;
+            it++;
         }
         return false;
     };
@@ -103,7 +109,24 @@ public:
     ListIterator<T> end(){return ListIterator<T>(_tail->Next);};
     ConstListIterator<T> cbegin(){return ConstListIterator<T>(_head);};
     ConstListIterator<T> cend(){return ConstListIterator<T>(_tail->Next);};
-    ~MyForwardList(){};
+    ~MyForwardList(){
+        ListIterator<T> it = begin();
+        Node<T>* prev = _head;
+        Node<T>* curr = _head->Next;
+        it++;
+        for (it; it != end(); it++) {
+            if (curr != _tail){
+            delete prev;
+            prev = curr;
+            curr = curr->Next;
+            }
+            else {
+                delete prev;
+                delete curr;
+                return;
+            }
+        }
+    };
 };
 
 struct Iterator
@@ -162,10 +185,22 @@ int main(){
     mlf.Add(5);
     mlf.Add(777);
     mlf.Add(1000);
-    mlf.Delete(5);
+    mlf.Delete(1000);
     for (auto it = mlf.cbegin(); it != mlf.cend(); it++){
             cout << *it << endl;
         }
+        cout << endl;
+    for (auto it = mlf.begin(); it != mlf.end(); it++){
+            *it += 1;
+            cout << *it << endl;
+        }
+        cout << endl;
+
+        for (auto it = mlf.cbegin(); it != mlf.cend(); it++){
+            cout << *it << endl;
+        }
+    mlf.Contains(5) ? cout <<  "yes " : cout <<  "no ";
+    mlf.Contains(1000) ? cout <<  "yes " : cout <<  "no ";
     return 0;
 }
 
