@@ -53,6 +53,126 @@ struct ConstListIterator
 };
 
 template <typename T>
+class QueueMyForwardList
+{
+private:
+    Node<T>* _head;
+    Node<T>* _tail;
+    size_t _size;
+    size_t _count;
+public:
+    QueueMyForwardList() : _size(1000), _count(0){
+        _head = nullptr;
+        _tail = nullptr;
+    };
+    QueueMyForwardList(size_t size) : _size(size), _count(0){
+        _head = nullptr;
+        _tail = nullptr;
+    };
+    void Push(T data){
+        if (_size == _count) return;
+        if (_head == nullptr){
+            _head = new Node<T>(data, nullptr);
+            _tail = _head;
+            _count++;
+            _tail->Next = nullptr;
+        }else{
+            _tail->Next = new Node<T>(data, nullptr);
+            _tail = _tail->Next;
+            _count++;
+            _tail->Next = nullptr;
+        }
+    };
+    void Pop() {
+    if (!_head) return; 
+    auto tmp = _head;
+    _head = _head->Next;
+    _count--;
+    delete tmp;
+};
+    bool Contains(T data){
+        ListIterator<T> it = begin();
+        while (it != end()){
+            if (*it == data) return true;
+            it++;
+        }
+        return false;
+    };
+    ListIterator<T> begin(){return ListIterator<T>(_head);};
+    ListIterator<T> end(){return ListIterator<T>(_tail->Next);};
+    size_t size(){return _size;}
+    size_t count(){return _count;}
+    ConstListIterator<T> cbegin(){return ConstListIterator<T>(_head);};
+    ConstListIterator<T> cend(){return ConstListIterator<T>(_tail->Next);};
+    ~QueueMyForwardList(){
+        ListIterator<T> it = begin();
+        Node<T>* prev = _head;
+        Node<T>* curr = _head->Next;
+        it++;
+        for (it; it != end(); it++) {
+            if (curr != _tail){
+            delete prev;
+            prev = curr;
+            curr = curr->Next;
+            }
+            else {
+                delete prev;
+                delete curr;
+                return;
+            }
+        }
+    };
+};
+
+struct Iterator
+{
+    using iterator_category = forward_iterator_tag;
+    using difference_type = ptrdiff_t;
+    using value_type = int;
+    using reference = int&;
+    using pointer = int*;
+    Iterator(pointer ptr): _ptr(ptr){};
+    reference operator*() const {return *_ptr;};
+    pointer operator->() {return _ptr;};
+    Iterator& operator++(){_ptr++; return *this;};
+    Iterator operator++(int){Iterator t = *this; ++(*this); return t;};
+    friend bool operator==(const Iterator& a, const Iterator& b){return a._ptr == b._ptr;};
+    friend bool operator!=(const Iterator& a, const Iterator& b){return a._ptr != b._ptr;};
+    private:
+        pointer _ptr;
+};
+
+class ConstIterator{
+    public:
+        using iterator_category = forward_iterator_tag;
+        using difference_type = ptrdiff_t;
+        using value_type = int;
+        using reference = const int&;
+        using pointer = const int*;
+        ConstIterator(pointer ptr): _ptr(ptr){};
+        const reference operator*() const {return *_ptr;};
+        const pointer operator->() {return _ptr;};
+        ConstIterator& operator++(){_ptr++; return *this;};
+        ConstIterator operator++(int){ConstIterator t = *this; ++(*this); return t;};
+        friend bool operator==(const ConstIterator& a, const ConstIterator& b){return a._ptr == b._ptr;};
+        friend bool operator!=(const ConstIterator& a, const ConstIterator& b){return a._ptr != b._ptr;};
+    private:
+        pointer _ptr;
+};
+
+class IntArr
+{
+private:
+    int _data[99];
+public:
+    Iterator begin(){return Iterator(&_data[0]);};
+    Iterator end(){return Iterator(&_data[99]);};//DOPISAT AND PROTESTIT
+    ConstIterator cbegin(){return ConstIterator(&_data[0]);};
+    ConstIterator cend(){return ConstIterator(&_data[99]);};
+};
+
+
+template <typename T>
 class MyForwardList
 {
 private:
@@ -129,63 +249,14 @@ public:
     };
 };
 
-struct Iterator
-{
-    using iterator_category = forward_iterator_tag;
-    using difference_type = ptrdiff_t;
-    using value_type = int;
-    using reference = int&;
-    using pointer = int*;
-    Iterator(pointer ptr): _ptr(ptr){};
-    reference operator*() const {return *_ptr;};
-    pointer operator->() {return _ptr;};
-    Iterator& operator++(){_ptr++; return *this;};
-    Iterator operator++(int){Iterator t = *this; ++(*this); return t;};
-    friend bool operator==(const Iterator& a, const Iterator& b){return a._ptr == b._ptr;};
-    friend bool operator!=(const Iterator& a, const Iterator& b){return a._ptr != b._ptr;};
-    private:
-        pointer _ptr;
-};
-
-class ConstIterator{
-    public:
-        using iterator_category = forward_iterator_tag;
-        using difference_type = ptrdiff_t;
-        using value_type = int;
-        using reference = const int&;
-        using pointer = const int*;
-        ConstIterator(pointer ptr): _ptr(ptr){};
-        const reference operator*() const {return *_ptr;};
-        const pointer operator->() {return _ptr;};
-        ConstIterator& operator++(){_ptr++; return *this;};
-        ConstIterator operator++(int){ConstIterator t = *this; ++(*this); return t;};
-        friend bool operator==(const ConstIterator& a, const ConstIterator& b){return a._ptr == b._ptr;};
-        friend bool operator!=(const ConstIterator& a, const ConstIterator& b){return a._ptr != b._ptr;};
-    private:
-        pointer _ptr;
-};
-
-class IntArr
-{
-private:
-    int _data[99];
-public:
-    Iterator begin(){return Iterator(&_data[0]);};
-    Iterator end(){return Iterator(&_data[99]);};//DOPISAT AND PROTESTIT
-    ConstIterator cbegin(){return ConstIterator(&_data[0]);};
-    ConstIterator cend(){return ConstIterator(&_data[99]);};
-};
-
-
-
 
 
 int main(){
-    MyForwardList<int> mlf;
-    mlf.Add(5);
-    mlf.Add(777);
-    mlf.Add(1000);
-    mlf.Delete(1000);
+    QueueMyForwardList<int> mlf(3);
+    mlf.Push(5);
+    mlf.Push(777);
+    mlf.Push(1000);
+    mlf.Pop();
     for (auto it = mlf.cbegin(); it != mlf.cend(); it++){
             cout << *it << endl;
         }
@@ -200,7 +271,7 @@ int main(){
             cout << *it << endl;
         }
     mlf.Contains(5) ? cout <<  "yes " : cout <<  "no ";
-    mlf.Contains(1000) ? cout <<  "yes " : cout <<  "no ";
+    mlf.Contains(1001) ? cout <<  "yes " : cout <<  "no ";
     return 0;
 }
 
